@@ -1,0 +1,27 @@
+DnsAdmins
+Enterprise Read-only Domain Controllers
+Domain Admins
+Domain Controllers
+Schema Admins
+Enterprise Admins
+Group Policy Creator Owners
+Read-only Domain Controllers
+Allowed RODC Password Replication Group
+Denied RODC Password Replication Group
+Administrators
+Account Operators
+Server Operators
+Print Operators
+Backup Operators
+Performance Log Users
+Distributed COM Users
+Cryptographic Operators
+Exchange Windows Permissions
+Exchange Trusted Subsystem
+Cert Publishers
+ESX Admins
+T0 Admins
+Administrar o dominio CORP.LOCAL
+T1 Admins
+Administrar todos os servidores - Tier 1
+Administrar estacoes de trabalho - Tier 2
