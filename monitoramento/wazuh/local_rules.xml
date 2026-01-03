@@ -195,6 +195,7 @@
         <id>T1003.006</id>
     </mitre>
 </rule>
+
 <!-- Essa regra descarta DCSync vindo de Domain Controllers. Isso porque não é possível negar uma CDB List no Wazuh. -->
 <rule id="110015" level="0">
     <if_sid>110014</if_sid>
@@ -202,11 +203,23 @@
     <description>[Descarte] Legítimo: Replicação (DCSync) realizada por um Domain Controller confiável. O alerta será descartado (level 0)</description>
 </rule>
 
+<!-- Detecta a extração do arquivo NTDS.dit usando o Sysmon -->
+<rule id="110016" level="15">
+    <if_group>sysmon_event1</if_group>
+    <options>no_full_log</options>
+    <field name="win.eventdata.originalFileName" type="pcre2">(?i)^ntdsutil\.exe$</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)\sifm\s+.*create</field>
+    <description>CRÍTICO: Dump do AD (ntds.dit) no host $(win.system.computer) pelo usuário $(win.eventdata.user) via Ntdsutil IFM detectado. Comando executado: $(win.eventdata.commandLine)</description>
+    <mitre>
+        <id>T1003.003</id>
+    </mitre>
+</rule>
+
 <!--=============================================================================================================================================================================================-->
 
 <!-- Monitoramento de acessos à Tier 0 exclusivamente por usuários Tier 0 -->
 <!-- Alerta por autenticações em servidores Tier 0. -->
-<rule id="110016" level="12" ignore="30">
+<rule id="110017" level="12" ignore="30">
     <if_group>windows</if_group>
     <options>no_full_log</options>
     <field name="win.system.eventID">^4624$</field>
@@ -220,14 +233,14 @@
     </mitre>
 </rule>
 <!-- Descarta o alerta quando o usuário for da Tier 0 -->
-<rule id="110017" level="0">
-    <if_sid>110016</if_sid>
+<rule id="110018" level="0">
+    <if_sid>110017</if_sid>
     <list field="win.eventdata.targetUserName" lookup="match_key">etc/lists/t0_users</list>
     <description>[Descarte] Logon Tier 0 Autorizado.</description>
 </rule>
 
 <!-- Alerta por execuções de comandos de usuários não Tier 0 em ativos Tier 0 -->
-<rule id="110018" level="12" ignore="10">
+<rule id="110019" level="12" ignore="10">
     <if_group>windows</if_group> <!--67027-->
     <if_sid>67027</if_sid>
     <options>no_full_log</options>
@@ -241,8 +254,8 @@
     </mitre>
 </rule>
 <!-- Descarta o alerta quando o usuário for da Tier 0 -->
-<rule id="110019" level="0">
-    <if_sid>110018</if_sid>
+<rule id="110020" level="0">
+    <if_sid>110019</if_sid>
     <list field="win.eventdata.subjectUserName" lookup="match_key">etc/lists/t0_users</list>
     <description>[Descarte] Execução autorizada por Admin Tier 0.</description>
 </rule>
@@ -252,7 +265,7 @@
 <!-- Monitoramento de eventos relacionados ao Windows Defender -->
 
 <!-- Desativação do Windows Defender Real-Time Protection (EventID 5001) -->
-<rule id="110021" level="13">
+<rule id="110022" level="13">
     <if_sid>62152</if_sid>
     <options>no_full_log</options>
     <field name="win.system.eventID">^5001$</field>
@@ -264,7 +277,7 @@
 </rule>
 
 <!-- Desativação do Windows Defender Tamper Protection (EventID 5007) -->
-<rule id="110022" level="15">
+<rule id="110023" level="15">
     <if_sid>62154</if_sid>
     <options>no_full_log</options>
     <field name="win.eventdata.new Value" type="pcre2">HKLM.*TamperProtection\s*=\s*0x4</field>
@@ -273,7 +286,7 @@
 </rule>
 
 <!-- Adição de pasta em exclusão no Windows Defender (EventID 5007) -->
-<rule id="110023" level="12">
+<rule id="110024" level="12">
     <if_sid>62154</if_sid>
     <options>no_full_log</options>
     <field name="win.eventdata.new Value" type="pcre2">HKLM.*Exclusions.*.*=\s*0x0</field>
@@ -285,9 +298,10 @@
 
 <!--=============================================================================================================================================================================================-->
 
-<!-- Monitoramento de alterações suspeitas de configuração de serviços (Windows Event Log, Wazuh, OssecSvc) -->
-<rule id="110024" level="13">
+<!-- Monitoramento de alterações suspeitas de configuração de serviços (Windows Event Log, Wazuh, OssecSvc, Sysmon) -->
+<rule id="110025" level="13">
     <if_sid>61104</if_sid>
+    <options>no_full_log</options>
     <field name="win.eventdata.param1" type="pcre2">Windows Event Log|Wazuh|OssecSvc</field>
     <description>Comportamento suspeito: O serviço de segurança $(win.eventdata.param1) foi modificado no host $(win.system.computer). Status alterado de '$(win.eventdata.param2)' para '$(win.eventdata.param3)'.</description>
     <mitre>
@@ -295,10 +309,23 @@
     </mitre>
 </rule>
 
+<!-- Monitoramento de paradas suspeitas de serviços (Windows Event Log, Wazuh, OssecSvc, Sysmon) -->
+<rule id="110026" level="13">
+    <if_sid>60118</if_sid>
+    <options>no_full_log</options>
+    <field name="win.eventdata.param1" type="pcre2">(?i)^(Windows Event Log|EventLog|Wazuh.*|OssecSvc|Sysmon.*)$</field>
+    <field name="win.eventdata.param2" type="pcre2">stopped</field>
+    <description>Comportamento suspeito: O do Windows $(win.eventdata.param1) foi PARADO no host $(win.system.computer).</description>
+    <mitre>
+        <id>T1562.001</id>
+        <id>T1489</id> 
+    </mitre>
+</rule>
+
 <!-- Monitoramento de limpeza de logs -->
-<rule id="110025" level="14">
-    <!-- <if_group>windows</if_group>   83200,63104 -->
+<rule id="110027" level="14">
     <if_sid>83200,63104</if_sid>
+    <options>no_full_log</options>
     <field name="win.system.eventID">^1102$|^104$</field>
     <description>Comportamento suspeito: O canal de log $(win.logFileCleared.channel) foi limpo manualmente pelo usuário $(win.logFileCleared.subjectUserName) em $(win.system.computer).</description>
     <mitre>
@@ -307,5 +334,6 @@
 </rule>
 
 <!--=============================================================================================================================================================================================-->
+
 
 </group>
