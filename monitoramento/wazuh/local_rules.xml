@@ -63,7 +63,7 @@
 <!--=============================================================================================================================================================================================-->
 
 <!-- Detecta os eventos básicos de falha de autenticação do NTLM (EventID 4625) e Kerberos (EventID 4771) -->
-<rule id="110006" level="5">
+<rule id="110006" level="0">
     <if_sid>60104,60122</if_sid>
     <field name="win.system.eventID">^4625$|^4771$</field>
     <options>no_full_log</options>
@@ -241,7 +241,7 @@
 
 <!-- Alerta por execuções de comandos de usuários não Tier 0 em ativos Tier 0 -->
 <rule id="110019" level="12" ignore="10">
-    <if_group>windows</if_group> <!--67027-->
+    <if_group>windows</if_group>
     <if_sid>67027</if_sid>
     <options>no_full_log</options>
     <field name="win.system.eventID">^4688$</field>
@@ -298,11 +298,11 @@
 
 <!--=============================================================================================================================================================================================-->
 
-<!-- Monitoramento de alterações suspeitas de configuração de serviços (Windows Event Log, Wazuh, OssecSvc, Sysmon) -->
+<!-- Monitoramento de alterações suspeitas de configuração de serviços (Windows Event Log, Wazuh, Sysmon) -->
 <rule id="110025" level="13">
     <if_sid>61104</if_sid>
     <options>no_full_log</options>
-    <field name="win.eventdata.param1" type="pcre2">Windows Event Log|Wazuh|OssecSvc</field>
+    <field name="win.eventdata.param1" type="pcre2">Windows Event Log|Wazuh|Sysmon</field>
     <description>Comportamento suspeito: O serviço de segurança $(win.eventdata.param1) foi modificado no host $(win.system.computer). Status alterado de '$(win.eventdata.param2)' para '$(win.eventdata.param3)'.</description>
     <mitre>
         <id>T1562.001</id>
@@ -310,20 +310,42 @@
 </rule>
 
 <!-- Monitoramento de paradas suspeitas de serviços (Windows Event Log, Wazuh, OssecSvc, Sysmon) -->
+<!-- Editar o /var/ossec/etc/ossec.conf e setar <agents_disconnection_time>5m</agents_disconnection_time> e <agents_disconnection_alert_time>0s</agents_disconnection_alert_time>. Isso faz um alerta disparar se o agente passar 5 min sem se conectar -->
 <rule id="110026" level="13">
-    <if_sid>60118</if_sid>
+    <if_group>windows</if_group>
     <options>no_full_log</options>
-    <field name="win.eventdata.param1" type="pcre2">(?i)^(Windows Event Log|EventLog|Wazuh.*|OssecSvc|Sysmon.*)$</field>
+    <field name="win.system.eventID">^7036$|^7011$</field>
+    <field name="win.eventdata.param1" type="pcre2">(?i)^(Windows Event Log|Wazuh.*|Sysmon.*)$</field>
     <field name="win.eventdata.param2" type="pcre2">stopped</field>
-    <description>Comportamento suspeito: O do Windows $(win.eventdata.param1) foi PARADO no host $(win.system.computer).</description>
+    <description>Comportamento suspeito: O serviço do Windows $(win.eventdata.param1) foi PARADO no host $(win.system.computer). Verifique se o host não sofreu reboot ou shutdown recentemente (regra 67018).</description>
     <mitre>
         <id>T1562.001</id>
         <id>T1489</id> 
     </mitre>
 </rule>
 
+<!-- Eleva o nível do alerta das regras 504 e 506 (Wazuh Agent parado) -->
+<rule id="110027" level="12">
+    <if_sid>504,506</if_sid>
+    <options>no_full_log</options>
+    <description>CRÍTICO: Wazuh Agent interrompido (possível tentativa de evasão ou sabotagem). Acesse o host e investigue os logs no canal System, verificando se o serviço Wazuh ou Windows Event Log foram parados manualmente (EventID=7036).</description>
+    <mitre>
+    <id>T1562.001</id>
+    </mitre>
+</rule>
+
+<!-- Alerta vindo de SYSLOG (rule 1) de monitoramento de script local (mapeado no agent.conf / localfile ServiceGuard.log ) -->
+<rule id="110028" level="12">
+    <if_sid>1</if_sid> 
+    <regex>CRITICO: O servico \S+ estava PARADO</regex>
+    <description>DEFESA ATIVA: Serviço crítico (EventLog/Wazuh) foi reiniciado automaticamente pelo script ServiceGuard.</description>
+    <mitre>
+      <id>T1562.002</id>
+    </mitre>
+</rule>
+
 <!-- Monitoramento de limpeza de logs -->
-<rule id="110027" level="14">
+<rule id="110029" level="14">
     <if_sid>83200,63104</if_sid>
     <options>no_full_log</options>
     <field name="win.system.eventID">^1102$|^104$</field>
@@ -334,6 +356,11 @@
 </rule>
 
 <!--=============================================================================================================================================================================================-->
+
+
+
+<!--=============================================================================================================================================================================================-->
+
 
 
 </group>
