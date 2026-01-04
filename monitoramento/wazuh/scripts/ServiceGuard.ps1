@@ -8,30 +8,65 @@
 $servicesOfInterest = @("EventLog", "WazuhSvc")
 $logFile = "C:\Tools\Scripts\ServiceGuard.log"
 
-# Força cultura US para garantir datas como "Jan" (Wazuh exige inglês)
+# Força cultura US para garantir datas como "Jan"
 $culture = [System.Globalization.CultureInfo]::InvariantCulture
 
+
+function Write-Log {
+    param (
+        [string]$Path,
+        [string]$Message
+    )
+
+    try {
+        $fs = [System.IO.File]::Open(
+            $Path,
+            [System.IO.FileMode]::Append,
+            [System.IO.FileAccess]::Write,
+            [System.IO.FileShare]::ReadWrite
+        )
+
+        $sw = New-Object System.IO.StreamWriter($fs)
+        $sw.WriteLine($Message)
+        $sw.Flush()
+        $sw.Close()
+        $fs.Close()
+    }
+    catch {
+        Write-Host "Erro ao escrever no log: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
+
 foreach ($serviceName in $servicesOfInterest) {
+
     $serviceObj = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 
     if ($serviceObj) {
+
         if ($serviceObj.Status -ne 'Running') {
+
+            Write-Host "O servico $serviceName esta parado." -ForegroundColor Yellow
+
             Start-Service -Name $serviceName -ErrorAction SilentlyContinue
-            
-            # Pequena pausa para garantir que o status atualizou
-            Start-Sleep -Seconds 2 
-            
+
+            # Aguarda atualização do status
+            Start-Sleep -Seconds 5
+
             $newStatus = (Get-Service -Name $serviceName).Status
-            
+
             if ($newStatus -eq 'Running') {
-                # FORMATO PADRÃO SYSLOG: MMM dd HH:mm:ss HOSTNAME PROGRAMA: MSG
+
+                # FORMATO SYSLOG: MMM dd HH:mm:ss HOST TAG: MSG
                 $timestamp = (Get-Date).ToString("MMM dd HH:mm:ss", $culture)
-                $hostname = $env:COMPUTERNAME
-                
-                # Note a estrutura: DATA ESPAÇO HOST ESPAÇO TAG: MENSAGEM
+                $hostname  = $env:COMPUTERNAME
+
                 $msg = "$timestamp $hostname ServiceGuard: CRITICO: O servico $serviceName estava PARADO e foi REINICIADO."
-                
-                Add-Content -Path $logFile -Value $msg
+
+                Write-Host "Escrevendo no log:" -ForegroundColor Green
+                Write-Host $msg -ForegroundColor Blue
+
+                Write-Log -Path $logFile -Message $msg
             }
         }
     }
