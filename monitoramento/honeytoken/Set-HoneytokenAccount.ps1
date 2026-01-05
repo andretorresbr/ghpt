@@ -32,7 +32,7 @@ New-ADuser -Name $nomeContaKerb -DisplayName $nomeContaKerb -AccountPassword $se
 
 # Criação da conta de serviço sujeita a AS-REP Roasting
 Write-Host "[INFO] Criando a conta $nomeContaAsRep" -ForegroundColor Yellow
-New-ADuser -Name $nomeContaAsRep -DisplayName $nomeContaAsRep -AccountPassword $secPwAsRep -Path "OU=Contas de Servico,OU=Tier0,DC=CORP,DC=LOCAL" -Enabled $true -UserPrincipalName "$nomeContaAsRep@CORP.LOCAL" -SamAccountName $nomeContaAsRep -PasswordNeverExpires -Description $descriptionAsRep
+New-ADuser -Name $nomeContaAsRep -DisplayName $nomeContaAsRep -AccountPassword $secPwAsRep -Path "OU=Contas de Servico,OU=Tier0,DC=CORP,DC=LOCAL" -Enabled $true -UserPrincipalName "$nomeContaAsRep@CORP.LOCAL" -SamAccountName $nomeContaAsRep -PasswordNeverExpires $true -Description $descriptionAsRep
 
 # Seta a conta com "Does not require Kerberos pre-auth" (AS-REP Roasting)
 Write-Host "[INFO] Configurando a conta $nomeContaAsRep com Does not require Kerberos pre-authentication (sujeita a AS-REP Kerberoasting)" -ForegroundColor Yellow
@@ -41,8 +41,8 @@ Set-ADAccountControl -Identity $nomeContaAsRep -DoesNotRequirePreAuth $true
 # Simula logons para a conta $nomeContaKerb
 Write-Host "[INFO] Simulando logons para a conta $nomeContaKerb" -ForegroundColor Yellow
 $length = Get-Random -Minimum 20 -Maximum 50
+$credLog = New-Object System.Management.Automation.PSCredential("CORP\$nomeContaKerb", $secPwKerb)
 for ($i = 1; $i -le $length; $i++) {
-	$credLog = New-Object System.Management.Automation.PSCredential("CORP\$nomeContaKerb", $secPwKerb)
     Enter-PSSession -ComputerName $maquinaNaoExistente -Credential $credLog -ErrorAction Ignore
 }
 Write-Host "[INFO] Valor de logonCount da conta $nomeContaKerb" -ForegroundColor Green
@@ -51,8 +51,8 @@ Get-ADUser -Identity $nomeContaKerb -Properties logonCount | Select-Object Name,
 # Simula logons para a conta $nomeContaAsRep
 Write-Host "[INFO] Simulando logons para a conta $nomeContaAsRep" -ForegroundColor Yellow
 $length = Get-Random -Minimum 20 -Maximum 50
+$credLog = New-Object System.Management.Automation.PSCredential("CORP\$nomeContaAsRep", $secPwAsRep)
 for ($i = 1; $i -le $length; $i++) {
-	$credLog = New-Object System.Management.Automation.PSCredential("CORP\$nomeContaAsRep", $secPwAsRep)
     Enter-PSSession -ComputerName $maquinaNaoExistente -Credential $credLog -ErrorAction Ignore
 }
 Write-Host "[INFO] Valor de logonCount da conta $nomeContaAsRep" -ForegroundColor Green
@@ -74,5 +74,6 @@ for ($i = 0; $i -lt 21; $i++) {$logonHours[$i] = 0}
 Set-ADUser -Identity $nomeContaKerb -Replace @{logonHours = $logonHours}
 
 # Marca ambas como não podendo ser delegadas
+Write-Host "[INFO] Restringindo a delegação nas contas $nomeContaKerb e $nomeContaAsRep" -ForegroundColor Yellow
 Set-ADUser -Identity $nomeContaKerb -AccountNotDelegated $true
 Set-ADUser -Identity $nomeContaAsRep -AccountNotDelegated $true
