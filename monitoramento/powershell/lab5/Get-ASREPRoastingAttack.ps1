@@ -1,6 +1,14 @@
 # Janela de observação dos logs (em horas)
 $StartTime = (Get-Date).AddHours(-1)
 
+# Extrai o nome do script sem a extensão
+$ScriptName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+# Define o path do script
+$TranscriptFile = "$PSScriptRoot\$ScriptName`_execution.txt"
+# Inicia o log de execução do script
+Start-Transcript -Path $TranscriptFile -Force
+
+
 # Retrieve a list of all domain controllers in the domain
 Write-Host "Obtendo lista de Domain Controllers do dominio..." -ForegroundColor Green
 $DomainControllers = Get-ADDomainController -Filter *
@@ -46,3 +54,5 @@ else
 {
 	Write-Host "Não foram encontrados logs." -ForegroundColor Yellow
 }
+
+Stop-Transcript
