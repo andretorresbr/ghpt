@@ -7,6 +7,13 @@ $ConstrainedPermittedServersFile = ".\ConstrainedDelegations_Permitidos.txt"
 # Load the list of permitted servers from the file
 $ConstrainedPermittedServers = Get-Content -Path $ConstrainedPermittedServersFile
 
+# Extrai o nome do script sem a extensão
+$ScriptName = [System.IO.Path]::GetFileNameWithoutExtension($PSCommandPath)
+# Define o path do script
+$TranscriptFile = "$PSScriptRoot\$ScriptName`_execution.txt"
+# Inicia o log de execução do script
+Start-Transcript -Path $TranscriptFile -Force
+
 # Get all computers in the domain with unconstrained delegation
 $computersWithUnconstrainedDelegation = Get-ADComputer -Filter {TrustedForDelegation -eq $true} -Properties TrustedForDelegation
 $objectsWithConstrainedDelegation = Get-ADObject -Filter {msDS-AllowedToDelegateTo -ne "$null"} -Properties msDS-AllowedToDelegateTo
@@ -89,3 +96,5 @@ Configuração de Constrained Delegation encontrada
 {
     Write-Host "Não foram encontradas Constrained Delegations fora da lista de permissão." -ForegroundColor Yellow
 }
+
+Stop-Transcript
