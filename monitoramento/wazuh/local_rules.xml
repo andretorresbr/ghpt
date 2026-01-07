@@ -56,7 +56,7 @@
     <options>no_full_log</options>
     <field name="win.system.eventID">^4738$</field>
     <field name="win.system.message" type="pcre2">(?i)'Don't Require Preauth'\s+-\s+Enabled</field>
-    <description>Active Directory: Pré-autenticação Kerberos desabilitada na conta $(win.eventdata.targetUserName) por $(win.eventdata.subjectUserName)</description>
+    <description>Active Directory: Pré-autenticação Kerberos desabilitada na conta $(win.eventdata.targetUserName) pelo usuário $(win.eventdata.subjectUserName)</description>
     <mitre>
       <id>T1558.004</id>
     </mitre>
@@ -157,7 +157,8 @@
     <options>no_full_log</options>
     <field name="win.system.eventID">^4738$|^4742$</field>
     <field name="win.system.message" type="pcre2">(?ix)(?:
-        'Trusted\sTo\sAuthenticate\sFor\sDelegation'\s*-\s*Enabled
+        'Trusted\sTo\sAuthenticate\sFor\sDelegation'\s*-\s*Enabled|
+        AllowedToDelegateTo:\s+(?!-)
     )</field>
     <description>Active Directory: Objeto $(win.eventdata.targetUserName) foi configurado para CONSTRAINED DELEGATION pelo usuário $(win.eventdata.subjectUserName). Risco alto de comprometimento do objeto que sofreu delegação (ver atributo msDS-AllowedToDelegateTo) caso o $(win.eventdata.targetUserName) seja comprometido.</description>
     <mitre>
@@ -422,6 +423,13 @@
     <list field="win.eventdata.newProcessName" lookup="match_key">etc/lists/process-whitelist</list>
     <description>[Descarte] Tuning: Processo legítimo ignorado (listado na CDB process-whitelist).</description>
 </rule>
+
+<rule id="110098" level="0">
+    <if_sid>92213</if_sid>
+    <field name="win.eventdata.targetFilename" type="pcre2">(?i)__PSScriptPolicyTest_.*\.ps(1|m1|d1)$</field>
+    <description>[Descarte] Tuning: Arquivo de teste de política do PowerShell (Legítimo).</description>
+</rule>
+
 
 <!--=============================================================================================================================================================================================-->
 
