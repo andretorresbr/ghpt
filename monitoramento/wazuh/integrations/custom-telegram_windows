@@ -54,11 +54,26 @@ timestamp = format_date(raw_timestamp)
 description_raw = alert_json.get('rule', {}).get('description', 'N/A')
 description = html_escape(description_raw)
 
-# 5. Log Completo (com truncagem)
+# 5. Log Completo (Lógica Melhorada para Linux/Frequency Rules)
 full_message = alert_json.get('data', {}).get('win', {}).get('system', {}).get('message')
-if not full_message:
-    full_message = alert_json.get('full_log', 'Log bruto indisponível')
 
+# Se não for Windows, tenta o log bruto padrão
+if not full_message:
+    full_message = alert_json.get('full_log')
+
+# Se AINDA estiver vazio (comum em regras de frequência/Linux onde o full_log é suprimido),
+# vamos extrair os dados decodificados (srcip, dstuser, etc)
+if not full_message:
+    data_content = alert_json.get('data', {})
+    if data_content:
+        # Removemos a parte do windows se existir vazia para limpar a visualização
+        data_content.pop('win', None)
+        # Formata o dicionário como uma string JSON legível
+        full_message = json.dumps(data_content, indent=4, ensure_ascii=False)
+    else:
+        full_message = 'Log bruto indisponível'
+
+# Truncagem de segurança
 if len(str(full_message)) > 3000:
     full_message = str(full_message)[:3000] + "\n\n... [LOG TRUNCADO] ..."
 
