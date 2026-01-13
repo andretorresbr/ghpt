@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script de integração Wazuh - YARA (Versão JSON Support)
-# Autor: Andre Torres
+# Autor: Adaptado para Organizacao
 
 # Debug caso seja necessário verificar se o script está sendo chamado
 # echo "$(date) - DEBUG: Script yara.sh INICIADO. Argumentos recebidos: $@" >> /tmp/active-responses.log
@@ -30,7 +30,7 @@ if [ -n "$FILENAME" ] && [ -f "$FILENAME" ]; then
 
     if [ ! -z "$YARA_OUTPUT" ]; then
         # Loga no formato que o Decoder espera
-        echo "wazuh-yara: $YARA_OUTPUT" >> "${LOG_FILE}"
+        echo "wazuh-yara: INFO - Scan result: $YARA_OUTPUT" >> "${LOG_FILE}"
     fi
 else
     echo "$(date) - ERRO: Arquivo nao encontrado ou caminho vazio. Filename: $FILENAME" >> "${LOG_FILE}"
