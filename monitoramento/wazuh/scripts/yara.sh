@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script de integração Wazuh - YARA (Versão JSON Support)
-# Autor: Adaptado para Organizacao
+# Autor: Andre Torres
 
 # Debug caso seja necessário verificar se o script está sendo chamado
 # echo "$(date) - DEBUG: Script yara.sh INICIADO. Argumentos recebidos: $@" >> /tmp/active-responses.log
