@@ -457,14 +457,49 @@
     </rule>
 </group>
 
+<!-- Regra que dispara a Active Response de scan de Yara, apenas para diretórios específicos -->
+<group name="yara,yara_trigger,">
+  <rule id="100101" level="3">
+    <!-- Criação e alteração de arquivos -->
+    <if_sid>550, 554</if_sid>
+    <field name="file" type="pcre2">^/tmp|^/dev/shm|^/home|^/var/www/html</field>
+    <description>Ativação de Scan YARA em diretório crítico: $(file)</description>
+  </rule>
+</group>
+
+<!-- Alerta para quando o scan Yara detectar malware -->
 <group name="yara,malware,">
-    <rule id="100101" level="12">
+    <rule id="100102" level="12">
     <decoded_as>yara_decoder</decoded_as>
     <description>YARA: Malware detectado - Regra $(yara_rule) no arquivo $(yara_scanned_file)</description>
     <mitre>
         <id>T1204.002</id>
     </mitre>
     </rule>
+</group>
+
+<!-- Monitoramento de atividades relacionadas ao Cron -->
+<group name="syscheck,linux,gpg13_4.1,persistence_detection,">
+<rule id="100103" level="12">
+    <if_sid>550,554</if_sid>
+    <field name="file" type="pcre2">^/etc/crontab$|^/etc/cron\.d|^/etc/cron\.daily|^/etc/cron\.hourly|^/etc/cron\.weekly|^/etc/cron\.monthly|^/var/spool/cron/crontabs</field>
+    <description>Comportamento Suspeito: Possível mecanismo de persistência (Cron) detectado em $(file)</description>
+    <mitre>
+        <id>T1053.005</id>
+    </mitre>
+</rule>
+</group>
+
+<!-- Monitoramento de atividades relacionadas à permissões de sudoers e grupos do Linux -->
+<group name="syscheck,linux,gpg13_4.1,privilege_escalation,">
+<rule id="100104" level="12">
+    <if_sid>550,554,553</if_sid>
+    <field name="file" type="pcre2">^/etc/group$|^/etc/sudoers$</field>
+    <description>ALERTA CRÍTICO: Alteração em permissões administrativas (Sudoers/Groups) em $(file)</description>
+    <mitre>
+        <id>T1078.003</id>
+    </mitre>
+</rule>
 </group>
 
 <!--=============================================================================================================================================================================================-->
