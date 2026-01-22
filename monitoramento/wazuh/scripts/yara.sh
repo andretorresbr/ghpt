@@ -26,7 +26,7 @@ fi
 # 4. EXECUÇÃO
 if [ -n "$FILENAME" ] && [ -f "$FILENAME" ]; then
     # Executa o YARA
-    YARA_OUTPUT=$(yara -w "$RULES_FILE" "$FILENAME")
+    YARA_OUTPUT=$(yara -w -C "$RULES_FILE" "$FILENAME")
 
     if [ ! -z "$YARA_OUTPUT" ]; then
         # Loga no formato que o Decoder espera
