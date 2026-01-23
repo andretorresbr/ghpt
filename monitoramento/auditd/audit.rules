@@ -80,10 +80,10 @@
 ## -------------------------------------------------------------------------
 ## 3. RECONHECIMENTO (Discovery)
 ## -------------------------------------------------------------------------
--w /usr/bin/whoami -p x -k recon
--w /usr/bin/id -p x -k recon
--w /bin/hostname -p x -k recon
--w /bin/uname -p x -k recon
+#-w /usr/bin/whoami -p x -k recon
+#-w /usr/bin/id -p x -k recon
+#-w /bin/hostname -p x -k recon
+#-w /bin/uname -p x -k recon
 
 ## -------------------------------------------------------------------------
 ## 4. SELF-DEFENSE
