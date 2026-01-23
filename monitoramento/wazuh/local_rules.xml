@@ -574,7 +574,7 @@
     </mitre>
 </rule>
 
-<!-- Alteração de profile de shell -->
+<!-- Alteração de configuração de rede -->
 <rule id="200110" level="8">
     <if_sid>80700</if_sid>
     <field name="audit.key">network_modifications</field>
