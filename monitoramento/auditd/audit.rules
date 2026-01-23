@@ -96,5 +96,5 @@
 ## -------------------------------------------------------------------------
 ## 5. MONITORAMENTO GERAL (Base do Florian Roth)
 ## -------------------------------------------------------------------------
--a always,exit -F arch=b64 -S execve -k audit_exec
--a always,exit -F arch=b32 -S execve -k audit_exec
+#-a always,exit -F arch=b64 -S execve -k audit_exec
+#-a always,exit -F arch=b32 -S execve -k audit_exec
