@@ -536,6 +536,7 @@
 <rule id="200106" level="12">
     <if_sid>80700</if_sid>
     <field name="audit.key">shadow_access</field>
+    <!-- Exclui os processos que lidam normalmente com o /etc/shadow -->
     <field name="audit.exe" type="pcre2" negate="yes">^/usr/bin/sudo$|^/usr/bin/su$|^/usr/sbin/sshd$|^/usr/bin/login$|^/usr/sbin/cron$|^/var/ossec/bin/.*$|^/usr/bin/diff$|^/usr/sbin/userdel$|^/usr/sbin/useradd$|^/usr/bin/passwd$|^/usr/sbin/usermod$|^/usr/bin/gpasswd$|^/usr/bin/perl$|^/usr/lib/polkit-1/*|^/usr/lib/systemd/systemd-executor$</field>
     <description>Comportamento suspeito [$(audit.key)]: Tentativa de leitura de credenciais no arquivo $(audit.file.name). Leitura com sucesso? $(audit.success).</description>
     <info>Verifique o campo data.audit.success (no significa que o acesso foi negado)</info>
