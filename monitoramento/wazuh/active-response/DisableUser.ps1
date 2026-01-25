@@ -13,13 +13,12 @@ Function Write-Log {
 }
 
 try {
+	Write-Log "Iniciando script."
     # Extrai o nome do usuário do JSON
     # O caminho depende da sua regra, mas geralmente para Windows Event Channel é:
     $TargetUser = $AlertObj.parameters.alert.data.win.eventdata.targetUserName
 
-    Write-Log "Iniciando script. Usuário extraído do alerta: $TargetUser"
-	
-	echo "Iniciando script. Usuário extraído do alerta: $TargetUser" > c:\Windows\temp\oi.txt
+    Write-Log "Usuário extraído do alerta: $TargetUser"
 
     if ([string]::IsNullOrWhiteSpace($TargetUser) -or $TargetUser -eq "-") {
         Write-Log "ERRO: Usuário vazio ou inválido."
