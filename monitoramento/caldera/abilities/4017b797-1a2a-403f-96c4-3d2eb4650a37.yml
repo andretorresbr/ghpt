@@ -1,0 +1,21 @@
+- requirements: []
+  name: "[CORP] [Wazuh] [110003] [Tier0] Altera\xE7\xE3o de SPN de usu\xE1rio do AD"
+  description: "Seta o SPN de um usu\xE1rio do AD."
+  tactic: persistence
+  technique_id: T1098
+  technique_name: Account Manipulation
+  executors:
+  - cleanup: []
+    timeout: 60
+    platform: windows
+    name: psh
+    payloads: []
+    parsers: []
+    command: 'Import-Module ActiveDirectory;
+
+      Set-ADUser -Identity #{corp.domain.spnuser} -Clear servicePrincipalName;
+
+      Set-ADUser -Identity #{corp.domain.spnuser} -Add @{servicePrincipalName=''MSSQLSvc/srv-mssql.#{corp.domain
+
+      }''};'
+  id: 4017b797-1a2a-403f-96c4-3d2eb4650a37

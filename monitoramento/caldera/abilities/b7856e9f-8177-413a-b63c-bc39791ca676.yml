@@ -1,0 +1,39 @@
+- tactic: persistence
+  technique_name: Account Manipulation
+  technique_id: T1098
+  name: '[CORP] [Wazuh] [110009] [Tier0] Alterar grupo privilegiado'
+  description: "Adiciona um usu\xE1rio espec\xEDfico ao grupo privilegiado Backup\
+    \ Operators para garantir persist\xEAncia."
+  executors:
+  - name: psh
+    platform: windows
+    command: 'Import-Module ActiveDirectory;
+
+      Add-ADGroupMember -Identity "#{corp.domain.privilegedgroup}" -Members "#{corp.domain.privilegeduser}"
+      -Verbose;
+
+      Start-Sleep -Seconds 30;
+
+      Remove-ADGroupMember -Identity "#{corp.domain.privilegedgroup}" -Members "#{corp.domain.privilegeduser}"
+      -Confirm:$false -Verbose;'
+    code: null
+    language: null
+    build_target: null
+    payloads: []
+    uploads: []
+    timeout: 60
+    parsers: []
+    cleanup: []
+    variations: []
+    additional_info: {}
+  requirements: []
+  privilege: ''
+  repeatable: false
+  buckets:
+  - persistence
+  additional_info: {}
+  access: {}
+  singleton: false
+  plugin: ''
+  delete_payload: true
+  id: b7856e9f-8177-413a-b63c-bc39791ca676
