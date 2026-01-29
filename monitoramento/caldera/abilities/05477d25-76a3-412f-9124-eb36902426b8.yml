@@ -1,0 +1,15 @@
+- requirements: []
+  name: '[CORP] [Wazuh] [110035] Executar ferramenta PowerShell conhecida'
+  description: Executar ferramenta PowerShell conhecida.
+  tactic: execution
+  technique_id: T1059.001
+  technique_name: 'Command and Scripting Interpreter: PowerShell'
+  executors:
+  - cleanup: []
+    timeout: 60
+    platform: windows
+    name: psh
+    payloads: []
+    parsers: []
+    command: '# Invoke-ShareFinder -Test -Parameters'
+  id: 05477d25-76a3-412f-9124-eb36902426b8
