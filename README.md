@@ -1,4 +1,4 @@
-# GoHacking Purple Team Operations (GHPTP)
+# GoHacking Purple Team Operations (GHPTO)
 <p align="center">
   <img src="https://raw.githubusercontent.com/andretorresbr/ghpto/refs/heads/main/imagens/LOGO-GHPTO-800x550.png" alt="Main UI" width="300">
 </p>
