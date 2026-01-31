@@ -461,6 +461,60 @@
   </rule>
 </group>
 
+<group name="lotl,powershell,">
+
+<rule id="110037" level="12">
+    <if_group>sysmon_event1</if_group>
+    <options>no_full_log</options>
+    <field name="win.eventdata.originalFileName" type="pcre2">(?i)bitsadmin\.exe</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(/upload|/addfile.*http.*C:\\\\)</field>
+    <options>no_full_log</options>
+    <description>Comportamento suspeito: possível exfiltração com bitsadmin.exe</description>
+    <mitre>
+        <id>T1048.003</id>
+    </mitre>
+</rule>
+
+<!-- Detecta o uso do curl.exe para fazer atividades típicas de exfiltração -->
+<rule id="110038" level="12">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.originalFileName" type="pcre2">(?i)curl\.exe</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(--data|--json|-d\s|--form|-F\s|-T\s|--upload-file|--header\s|-H\s|--mail-rcpt|--append\s|-a\s)</field>
+    <options>no_full_log</options>
+    <description>Comportamento suspeito: possível exfiltração com curl.exe</description>
+    <mitre>
+    <id>T1102</id>
+    <id>T1567.002</id>
+    </mitre>
+</rule>
+
+<!-- Detecta o uso do Invoke-WebRequest e suas variações para fazer atividades típicas de exfiltração -->
+<rule id="110039" level="12">
+    <if_sid>91802</if_sid>
+    <options>no_full_log</options>
+    <field name="win.eventdata.scriptBlockText" type="pcre2">(?i)(?:Invoke-WebRequest|iwr|wget|curl).*(?:Uri|http|Post|InFile|OutFile|Method|UseBasic| -of | -ou | -o |C:\\\\)</field>
+    <description>Comportamento suspeito: possível exfiltração ou download com PowerShell (Invoke-WebRequest/aliases).</description>
+    <mitre>
+        <id>T1059.001</id>
+        <id>T1567.002</id>
+        <id>T1105</id>
+    </mitre>
+</rule>
+
+<rule id="110040" level="12">
+    <if_sid>61603</if_sid>
+    <field name="win.eventdata.originalFileName" type="pcre2">(?i)(certreq\.exe)</field>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)-post.*(http|C:\\\\|\\|%|env:)</field>
+    <options>no_full_log</options>
+    <description>Comportamento suspeito: possível exfiltração com certreq.exe</description>
+    <mitre>
+        <id>T1102</id>
+        <id>T1567.002</id>
+    </mitre>
+</rule>
+
+</group>
+
 <group name="sysmon,sysmon_eid1_detections,windows,">
   <rule id="92057" level="12" overwrite="yes">
     <if_group>sysmon_event1</if_group>
