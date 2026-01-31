@@ -1,16 +1,15 @@
+<!-- Testado em ambiente Active Directory com nível funcional Windows Server 2025 + Wazuh v4.14.1 -->
+<!-- Regras de sintaxe deste arquivo: https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html -->
+
+
 <!--=============================================================================================================================================================================================-->
 
 <!-- Lista de variáveis usadas no arquivo -->
 
 <!-- Lista de comandos PowerShell de ferramentas ofensivas -->
-<var name="offensive_tools_list">Export-PowerViewCSV|Get-IPAddress|Resolve-IPAddress|Convert-NameToSid|ConvertTo-SID|Convert-ADName|ConvertFrom-UACValue|Add-RemoteConnection|Remove-RemoteConnection|Invoke-UserImpersonation|Invoke-RevertToSelf|Request-SPNTicket|Get-DomainSPNTicket|Invoke-Kerberoast|Get-PathAcl|Get-DNSZone|Get-DomainDNSZone|Get-DNSRecord|Get-DomainDNSRecord|Get-NetDomain|Get-Domain|Get-NetDomainController|Get-DomainController|Get-NetForest|Get-Forest|Get-NetForestDomain|Get-ForestDomain|Get-NetForestCatalog|Get-ForestGlobalCatalog|Find-DomainObjectPropertyOutlier|Get-NetUser|Get-DomainUser|New-DomainUser|Set-DomainUserPassword|Get-UserEvent|Get-DomainUserEvent|Get-NetComputer|Get-DomainComputer|Get-ADObject|Get-DomainObject|Set-ADObject|Set-DomainObject|Get-ObjectAcl|Get-DomainObjectAcl|Add-ObjectAcl|Add-DomainObjectAcl|Invoke-ACLScanner|Find-InterestingDomainAcl|Get-NetOU|Get-DomainOU|Get-NetSite|Get-DomainSite|Get-NetSubnet|Get-DomainSubnet|Get-DomainSID|Get-NetGroup|Get-DomainGroup|New-DomainGroup|Find-ManagedSecurityGroups|Get-DomainManagedSecurityGroup|Get-NetGroupMember|Get-DomainGroupMember|Add-DomainGroupMember|Get-NetFileServer|Get-DomainFileServer|Get-DFSshare|Get-DomainDFSShare|Get-NetGPO|Get-DomainGPO|Get-NetGPOGroup|Get-DomainGPOLocalGroup|Find-GPOLocation|Get-DomainGPOUserLocalGroupMapping|Find-GPOComputerAdmin|Get-DomainGPOComputerLocalGroupMapping|Get-DomainPolicy|Get-NetLocalGroup|Get-NetLocalGroupMember|Get-NetShare|Get-NetLoggedon|Get-NetSession|Get-LoggedOnLocal|Get-RegLoggedOn|Get-NetRDPSession|Invoke-CheckLocalAdminAccess|Test-AdminAccess|Get-SiteName|Get-NetComputerSiteName|Get-Proxy|Get-WMIRegProxy|Get-LastLoggedOn|Get-WMIRegLastLoggedOn|Get-CachedRDPConnection|Get-WMIRegCachedRDPConnection|Get-RegistryMountedDrive|Get-WMIRegMountedDrive|Get-NetProcess|Get-WMIProcess|Find-InterestingFile|Invoke-UserHunter|Find-DomainUserLocation|Invoke-ProcessHunter|Find-DomainProcess|Invoke-EventHunter|Find-DomainUserEvent|Invoke-ShareFinder|Find-DomainShare|Invoke-FileFinder|Find-InterestingDomainShareFile|Find-LocalAdminAccess|Invoke-EnumerateLocalAdmin|Find-DomainLocalGroupMember|Get-NetDomainTrust|Get-DomainTrust|Get-NetForestTrust|Get-ForestTrust|Find-ForeignUser|Get-DomainForeignUser|Find-ForeignGroup|Get-DomainForeignGroupMember|Invoke-MapDomainTrust|Get-DomainTrustMapping|Invoke-Mimikatz|Invoke-MassMimikatz|Out-Minidump|Invoke-InternalMonologue|Invoke-TokenManipulation|Get-GPPPassword|Get-CachedGPPPassword|Invoke-CredentialInjection|Invoke-SafetyKatz|Invoke-AllChecks|Get-ModifiableService|Get-ModifiableServiceFile|Get-UnquotedService|Invoke-ServiceAbuse|Write-UserAddMSI|Write-ServiceBinary|Get-RegistryAlwaysInstallElevated|Get-ModifiableRegistryAutoRun|Invoke-Shellcode|Invoke-ReflectivePEInjection|Invoke-DllInjection|Invoke-WmiCommand|Invoke-BypassUAC|Invoke-PsExec|Find-AVSignature|Invoke-PowerShellTcp|Invoke-PowerShellTcpOneLine|Invoke-PowerShellUdp|Invoke-PoshRatHttps|Invoke-PsGcat|Gupt-Backdoor|Get-Keystrokes|Get-TimedScreenshot|Get-MicrophoneAudio|Get-WebcamImage|Invoke-NetRipper|Invoke-BloodHound|Invoke-SharpHound|Get-BloodHoundData|Invoke-ScriptSentry|Get-ConstrainedDelegation|Get-GPOEnumeration|Invoke-DomainEnumeration|Get-SQLInstanceLocal|Get-SQLInstanceBroadcast|Get-SQLInstanceDomain|Get-MSSQLLinkPasswords|Invoke-SQLDumpInfo|Invoke-SQLAudit|Invoke-SQLEscalatePriv|Invoke-SQLOSCmd|Get-SqlServerLinkCrawl|Get-MpPreference|Set-MpPreference|Get-AppLockerPolicy|Invoke-InveighRelay|Add-ConstrainedDelegationBackdoor|Add-Exfiltration|Add-Persistence|Add-RegBackdoor|Add-RemoteRegBackdoor|Add-ScrnSaveBackdoor|BadSuccessor|Check-VM|ConvertTo-ROT13|Copy-VSS|Create-MultipleSessions|DNS_TXT_Pwnage|dnscat2|Do-Exfiltration|DomainPasswordSpray|Download_Execute|Download-Execute-PS|Enabled-DuplicateToken|Enable-DuplicateToken|Execute-Command-MSSQL|Execute-DNSTXT-Code|Execute-OnTime|ExetoText|Exploit-Jboss|Find-Fruit|Find-TrustedDocuments|FireBuster|FireListener|Get-ApplicationHost|Get-ChromeDump|Get-ClipboardContents|Get-ComputerDetail|Get-FoxDump|Get-GPPAutologon|Get-IndexedItem|Get-LSASecret|Get-PassHashes|Get-PassHints|Get-RegAlwaysInstallElevated|Get-RegAutoLogon|Get-RickAstley|Get-Screenshot|Get-SecurityPackages|Get-ServiceFilePermission|Get-ServicePermission|Get-ServiceUnquoted|Get-SiteListPassword|Get-System|Get-UnattendedInstallFile|Get-Unconstrained|Get-USBKeystrokes|Get-VaultCredential|Get-VulnAutoRun|Get-VulnSchTask|Get-WebConfig|Get-WebCredentials|Get-WLAN-Keys|HTTP-Backdoor|HTTP-Login|Install-ServiceBinary|Install-SSP|Invoke-ADSBackdoor|Invoke-AmsiBypass|Invoke-ARPScan|Invoke-BackdoorLNK|Invoke-BadPotato|Invoke-BetterSafetyKatz|Invoke-BruteForce|Invoke-Carbuncle|Invoke-Certify|Invoke-ConPtyShell|Invoke-CredentialsPhish|Invoke-DAFT|Invoke-DCSync|Invoke-Decode|Invoke-DinvokeKatz|Invoke-DNSExfiltrator|Invoke-DowngradeAccount|Invoke-EgressCheck|Invoke-Encode|Invoke-EventViewer|Invoke-Eyewitness|Invoke-FakeLogonScreen|Invoke-Farmer|Invoke-Get-RBCD-Threaded|Invoke-Gopher|Invoke-Grouper2|Invoke-Grouper3|Invoke-HandleKatz|Invoke-Interceptor|Invoke-Internalmonologue|Invoke-Inveigh|Invoke-JSRatRegsvr|Invoke-JSRatRundll|Invoke-KrbRelay|Invoke-KrbRelayUp|Invoke-LdapSignCheck|Invoke-Lockless|Invoke-MalSCCM|Invoke-MimikatzWDigestDowngrade|Invoke-Mimikittenz|Invoke-MITM6|Invoke-NanoDump|Invoke-NetworkRelay|Invoke-NinjaCopy|Invoke-OxidResolver|Invoke-P0wnedshell|Invoke-P0wnedshellx86|Invoke-Paranoia|Invoke-PortScan|Invoke-PoshRatHttp|Invoke-PostExfil|Invoke-PowerDump|Invoke-PowerDPAPI|Invoke-PowerShellIcmp|Invoke-PowerShellTCP|Invoke-PowerShellTcpOneLineBind|Invoke-PowerShellUdpOneLine|Invoke-PowerShellWMI|Invoke-PowerThIEf|Invoke-PPLDump|Invoke-Prasadhak|Invoke-PsGcatAgent|Invoke-PSInject|Invoke-PsUaCme|Invoke-ReverseDNSLookup|Invoke-Rubeus|Invoke-RunAs|Invoke-SauronEye|Invoke-SCShell|Invoke-Seatbelt|Invoke-SessionGopher|Invoke-ShellCode|Invoke-SMBScanner|Invoke-Snaffler|Invoke-Spoolsample|Invoke-SSHCommand|Invoke-SSIDExfil|Invoke-StandIn|Invoke-StickyNotesExtract|Invoke-Tater|Invoke-Thunderfox|Invoke-ThunderStruck|Invoke-Tokenvator|Invoke-TotalExec|Invoke-UrbanBishop|Invoke-VoiceTroll|Invoke-Whisker|Invoke-WinEnum|Invoke-winPEAS|Invoke-WireTap|Invoke-WScriptBypassUAC|Invoke-Zerologon|Keylogger|MailRaider|New-HoneyHash|OfficeMemScraper|Offline_Winpwn|Out-CHM|Out-DnsTxt|Out-Excel|Out-HTA|Out-Java|Out-JS|Out-RundllCommand|Out-SCF|Out-SCT|Out-Shortcut|Out-WebQuery|Out-Word|Parse_Keys|Port-Scan|PowerBreach|powercat|PowerRunAsSystem|PowerSharpPack|PowerUp|PowerUpSQL|PowerView|PSAsyncShell|RemoteHashRetrieval|Remove-Persistence|Remove-PoshRat|Remove-Update|Run-EXEonRemote|Schtasks-Backdoor|Set-DCShadowPermissions|Set-MacAttribute|Set-RemotePSRemoting|Set-RemoteWMI|Set-Wallpaper|Show-TargetScreen|Speak|Start-CaptureServer|Start-WebcamRecorder|StringToBase64|TexttoExe|Veeam-Get-Creds|VolumeShadowCopyTools|WinPwn|WSUSpendu</var>
+<var name="offensive_tools_list">Export-PowerViewCSV|Get-IPAddress|Resolve-IPAddress|Convert-NameToSid|ConvertTo-SID|Convert-ADName|ConvertFrom-UACValue|Add-RemoteConnection|Remove-RemoteConnection|Invoke-UserImpersonation|Invoke-RevertToSelf|Request-SPNTicket|Get-DomainSPNTicket|Invoke-Kerberoast|Get-PathAcl|Get-DNSZone|Get-DomainDNSZone|Get-DNSRecord|Get-DomainDNSRecord|Get-NetDomain|Get-Domain|Get-NetDomainController|Get-DomainController|Get-NetForest|Get-Forest|Get-NetForestDomain|Get-ForestDomain|Get-NetForestCatalog|Get-ForestGlobalCatalog|Find-DomainObjectPropertyOutlier|Get-NetUser|Get-DomainUser|New-DomainUser|Set-DomainUserPassword|Get-UserEvent|Get-DomainUserEvent|Get-NetComputer|Get-DomainComputer|Get-ADObject|Get-DomainObject|Set-ADObject|Set-DomainObject|Get-ObjectAcl|Get-DomainObjectAcl|Add-ObjectAcl|Add-DomainObjectAcl|Invoke-ACLScanner|Find-InterestingDomainAcl|Get-NetOU|Get-DomainOU|Get-NetSite|Get-DomainSite|Get-NetSubnet|Get-DomainSubnet|Get-DomainSID|Get-NetGroup|Get-DomainGroup|New-DomainGroup|Find-ManagedSecurityGroups|Get-DomainManagedSecurityGroup|Get-NetGroupMember|Get-DomainGroupMember|Add-DomainGroupMember|Get-NetFileServer|Get-DomainFileServer|Get-DFSshare|Get-DomainDFSShare|Get-NetGPO|Get-DomainGPO|Get-NetGPOGroup|Get-DomainGPOLocalGroup|Find-GPOLocation|Get-DomainGPOUserLocalGroupMapping|Find-GPOComputerAdmin|Get-DomainGPOComputerLocalGroupMapping|Get-DomainPolicy|Get-NetLocalGroup|Get-NetLocalGroupMember|Get-NetShare|Get-NetLoggedon|Get-NetSession|Get-LoggedOnLocal|Get-RegLoggedOn|Get-NetRDPSession|Invoke-CheckLocalAdminAccess|Test-AdminAccess|Get-SiteName|Get-NetComputerSiteName|Get-Proxy|Get-WMIRegProxy|Get-LastLoggedOn|Get-WMIRegLastLoggedOn|Get-CachedRDPConnection|Get-WMIRegCachedRDPConnection|Get-RegistryMountedDrive|Get-WMIRegMountedDrive|Get-NetProcess|Get-WMIProcess|Find-InterestingFile|Invoke-UserHunter|Find-DomainUserLocation|Invoke-ProcessHunter|Find-DomainProcess|Invoke-EventHunter|Find-DomainUserEvent|Invoke-ShareFinder|Find-DomainShare|Invoke-FileFinder|Find-InterestingDomainShareFile|Find-LocalAdminAccess|Invoke-EnumerateLocalAdmin|Find-DomainLocalGroupMember|Get-NetDomainTrust|Get-DomainTrust|Get-NetForestTrust|Get-ForestTrust|Find-ForeignUser|Get-DomainForeignUser|Find-ForeignGroup|Get-DomainForeignGroupMember|Invoke-MapDomainTrust|Get-DomainTrustMapping|Invoke-Mimikatz|Invoke-MassMimikatz|Out-Minidump|Invoke-InternalMonologue|Invoke-TokenManipulation|Get-GPPPassword|Get-CachedGPPPassword|Invoke-CredentialInjection|Invoke-SafetyKatz|Invoke-AllChecks|Get-ModifiableService|Get-ModifiableServiceFile|Get-UnquotedService|Invoke-ServiceAbuse|Write-UserAddMSI|Write-ServiceBinary|Get-RegistryAlwaysInstallElevated|Get-ModifiableRegistryAutoRun|Invoke-Shellcode|Invoke-ReflectivePEInjection|Invoke-DllInjection|Invoke-WmiCommand|Invoke-BypassUAC|Invoke-PsExec|Find-AVSignature|Invoke-PowerShellTcp|Invoke-PowerShellTcpOneLine|Invoke-PowerShellUdp|Invoke-PoshRatHttps|Invoke-PsGcat|Gupt-Backdoor|Get-Keystrokes|Get-TimedScreenshot|Get-MicrophoneAudio|Get-WebcamImage|Invoke-NetRipper|Invoke-BloodHound|Invoke-SharpHound|Get-BloodHoundData|Invoke-ScriptSentry|Get-ConstrainedDelegation|Get-GPOEnumeration|Invoke-DomainEnumeration|Get-SQLInstanceLocal|Get-SQLInstanceBroadcast|Get-SQLInstanceDomain|Get-MSSQLLinkPasswords|Invoke-SQLDumpInfo|Invoke-SQLAudit|Invoke-SQLEscalatePriv|Invoke-SQLOSCmd|Get-SqlServerLinkCrawl|Get-MpPreference|Set-MpPreference|Get-AppLockerPolicy|Invoke-InveighRelay</var>
 <!--=============================================================================================================================================================================================-->
 <!--=============================================================================================================================================================================================-->
-
-
-
-<!-- Testado em ambiente Active Directory com nível funcional Windows Server 2025 + Wazuh v4.14.1 -->
-<!-- Regras de sintaxe deste arquivo: https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html -->
 
 
 <!--=============================================================================================================================================================================================-->
@@ -448,6 +447,35 @@
 
 </group>
 
+<group name="windows, powershell, rubeus">
+  <rule id="110036" level="13">
+    <if_sid>91802</if_sid>
+    <field name="win.eventdata.scriptBlockText" type="pcre2">(?i)asreproast|dump\s+/service:krbtgt|dump\s+/luid:0x|kerberoast|createnetonly|ptt\s+/ticket:|impersonateuser|renew\s+/ticket:|asktgt|harvest|s4u|golden\s+/aes256|silver\s+/user</field>
+    <description>Comportamento suspeito: possível execução do Rubeus via PowerShell</description>
+    <mitre>
+      <id>T1550.003</id>
+      <id>T1003</id>
+    </mitre>
+    <group>pentesttool,credential_access,</group>
+    <info type="link">https://github.com/SigmaHQ/sigma/tree/master/rules/windows/powershell/powershell_script/posh_ps_hktl_rubeus.yml</info>
+  </rule>
+</group>
+
+<group name="sysmon,sysmon_eid1_detections,windows,">
+  <rule id="92057" level="12" overwrite="yes">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.parentImage" type="pcre2">(?i)powershell\.exe</field>
+    <!-- Filtro original -->
+    <!-- <field name="win.eventdata.commandLine" type="pcre2">(?i)powershell\.exe.+\-\b(encodedcommand|e|ea|ec|encodeda|encode|en|enco)\b</field> -->
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)powershell\.exe.+[-/]\b(e|ec|en|enc|enco|encod|encode|encoded|encodedc|encodedco|encodedcom|encodedcomm|encodedcomma|encodedcomman|encodedcommand)\b</field>
+    <options>no_full_log</options>
+    <description>Comportamento suspeito: processo Powershell com comando codificado em base64</description>
+    <mitre>
+      <id>T1059.001</id>
+    </mitre>
+  </rule>
+</group>
+
 <!--=============================================================================================================================================================================================-->  
 <!--=============================================================================================================================================================================================-->  
 <!--=============================================================================================================================================================================================-->  
@@ -603,6 +631,17 @@
     <description>Comportamento suspeito [$(audit.key)]: Comando de manipulação de auditoria executado: $(audit.exe) $(audit.execve.a1) $(audit.execve.a2)</description>
     <mitre>
         <id>T1562.001</id>
+    </mitre>
+</rule>
+
+<!-- Possível exfiltração -->
+<rule id="200113" level="12">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">network_tool</field>
+    <match type="pcre2">(?i)(wget.*--post-file|curl.*(--data|--json|-d\s|--form|-F\s|-T\s|--upload-file|--header\s|-H\s|--mail-rcpt|--append\s|-a\s))</match>
+    <description>Comportamento suspeito [$(audit.key)]: possível atividade de exfiltração utilizando o $(audit.exe).</description>
+    <mitre>
+      <id>T1048.003</id>
     </mitre>
 </rule>
 
